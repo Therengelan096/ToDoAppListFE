@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 export const API_URL = "http://127.0.0.1:8000/api";
+=======
+export const API_URL =
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+>>>>>>> 3ee137c (feat: Crear listado de categorías TDO-7)
 
 export const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
