@@ -1,28 +1,23 @@
 // src/services/tarea.service.js
+import { API_URL, DEFAULT_HEADERS, handleResponse } from "./api";
 
 export const getAll = async () => {
   try {
     const response = await fetch(`${API_URL}/tasks`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+      headers: DEFAULT_HEADERS,
     });
 
-    if (!response.ok) {
-      throw new Error(`Error con la peticion: ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    const data = await handleResponse(response);
     return data;
-  } catch (e) {
-    console.error("Error al obtener las tareas: ", e);
-    throw e;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    throw error;
   }
 };
 
-export const create = async (tarea) => {};
+export const create = async (taskData) => {};
 
-export const update = async (id, tarea) => {};
+export const update = async (id, taskData) => {};
+
 export const remove = async (id) => {};
