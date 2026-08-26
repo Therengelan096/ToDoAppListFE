@@ -13,3 +13,18 @@ export const getAll = async () => {
     throw error;
   }
 };
+
+export const create = async (categoryData) => {
+  try {
+    const response = await fetch(`${API_URL}/categories`, {
+      method: "POST",
+      headers: DEFAULT_HEADERS,
+      body: JSON.stringify(categoryData),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Error creating category:", error);
+    throw error;
+  }
+};
