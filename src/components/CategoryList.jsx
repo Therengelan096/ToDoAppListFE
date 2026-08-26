@@ -1,4 +1,3 @@
-// src/components/CategoryList.jsx
 import { useEffect, useState } from "react";
 import { getAll } from "../services/category.service";
 import { CategoryForm } from "./CategoryForm";
@@ -28,7 +27,6 @@ export const CategoryList = () => {
     <div style={{ padding: "20px" }}>
       <h2>Gestión de Categorías</h2>
 
-      {/* Formulario para el Ticket 8 */}
       <CategoryForm onCategoryAdded={fetchCategories} />
 
       {loading && <p>Cargando categorías...</p>}
