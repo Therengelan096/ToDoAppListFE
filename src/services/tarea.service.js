@@ -10,7 +10,6 @@ export const getAll = async () => {
     const data = await handleResponse(response);
     return data;
   } catch (error) {
-    console.error("Error fetching tasks:", error);
     throw error;
   }
 };
