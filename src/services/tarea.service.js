@@ -1,4 +1,3 @@
-// src/services/tarea.service.js
 import { API_URL, DEFAULT_HEADERS, handleResponse } from "./api";
 
 export const getAll = async () => {
