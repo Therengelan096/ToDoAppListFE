@@ -6,7 +6,6 @@ export const getAll = async () => {
       method: "GET",
       headers: DEFAULT_HEADERS,
     });
-
     return await handleResponse(response);
   } catch (error) {
     throw error;
@@ -20,7 +19,6 @@ export const create = async (categoryData) => {
       headers: DEFAULT_HEADERS,
       body: JSON.stringify(categoryData),
     });
-
     return await handleResponse(response);
   } catch (error) {
     throw error;
@@ -34,7 +32,6 @@ export const update = async (id, categoryData) => {
       headers: DEFAULT_HEADERS,
       body: JSON.stringify(categoryData),
     });
-
     return await handleResponse(response);
   } catch (error) {
     throw error;
@@ -47,7 +44,6 @@ export const remove = async (id) => {
       method: "DELETE",
       headers: DEFAULT_HEADERS,
     });
-
     return await handleResponse(response);
   } catch (error) {
     throw error;
