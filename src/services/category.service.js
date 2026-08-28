@@ -53,16 +53,3 @@ export const remove = async (id) => {
     throw error;
   }
 };
-
-export const getById = async (id) => {
-  try {
-    const response = await fetch(`${API_URL}/categories/${id}`, {
-      method: "GET",
-      headers: DEFAULT_HEADERS,
-    });
-
-    return await handleResponse(response);
-  } catch (error) {
-    throw error;
-  }
-};

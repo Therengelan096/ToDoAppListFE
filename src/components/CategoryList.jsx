@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAll, remove, getById } from "../services/category.service";
+import { getAll, remove } from "../services/category.service";
 import { CategoryForm } from "./CategoryForm";
 
 export const CategoryList = () => {
@@ -11,7 +11,6 @@ export const CategoryList = () => {
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
 
   const fetchCategories = async () => {
     try {
@@ -37,18 +36,9 @@ export const CategoryList = () => {
     setEditingCategory(null);
   };
 
-  const handleViewClick = async (id) => {
-    try {
-      setLoadingDetail(true);
-      setShowDetailModal(true);
-      const data = await getById(id);
-      setSelectedCategory(data.category || data);
-    } catch (err) {
-      setError("No se pudo obtener el detalle de la categoría");
-      setShowDetailModal(false);
-    } finally {
-      setLoadingDetail(false);
-    }
+  const handleViewClick = (category) => {
+    setSelectedCategory(category);
+    setShowDetailModal(true);
   };
 
   const closeDetailModal = () => {
@@ -113,20 +103,37 @@ export const CategoryList = () => {
                   <td>{cat.name || cat.nombre}</td>
                   <td>
                     <button
-                      onClick={() => handleViewClick(cat.id)}
-                      style={{ padding: "5px 10px", marginRight: "5px", cursor: "pointer", backgroundColor: "#17a2b8", color: "white", border: "none" }}
+                      onClick={() => handleViewClick(cat)}
+                      style={{
+                        padding: "5px 10px",
+                        marginRight: "5px",
+                        cursor: "pointer",
+                        backgroundColor: "#17a2b8",
+                        color: "white",
+                        border: "none",
+                      }}
                     >
                       Ver
                     </button>
                     <button
                       onClick={() => handleEditClick(cat)}
-                      style={{ padding: "5px 10px", marginRight: "5px", cursor: "pointer" }}
+                      style={{
+                        padding: "5px 10px",
+                        marginRight: "5px",
+                        cursor: "pointer",
+                      }}
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => openDeleteModal(cat)}
-                      style={{ padding: "5px 10px", backgroundColor: "#ff4d4d", color: "white", border: "none", cursor: "pointer" }}
+                      style={{
+                        padding: "5px 10px",
+                        backgroundColor: "#ff4d4d",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
                     >
                       Eliminar
                     </button>
@@ -166,18 +173,30 @@ export const CategoryList = () => {
             }}
           >
             <h3>Detalle de la Categoría</h3>
-            {loadingDetail ? (
-              <p>Cargando detalle...</p>
-            ) : selectedCategory ? (
+            {selectedCategory ? (
               <div>
-                <p><strong>ID:</strong> {selectedCategory.id}</p>
-                <p><strong>Nombre:</strong> {selectedCategory.name || selectedCategory.nombre}</p>
+                <p>
+                  <strong>ID:</strong> {selectedCategory.id}
+                </p>
+                <p>
+                  <strong>Nombre:</strong>{" "}
+                  {selectedCategory.name || selectedCategory.nombre}
+                </p>
               </div>
             ) : (
               <p>No se encontró información.</p>
             )}
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
-              <button onClick={closeDetailModal} style={{ padding: "8px 15px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "20px",
+              }}
+            >
+              <button
+                onClick={closeDetailModal}
+                style={{ padding: "8px 15px" }}
+              >
                 Cerrar
               </button>
             </div>
@@ -211,15 +230,33 @@ export const CategoryList = () => {
             <h3>Confirmar eliminación</h3>
             <p>
               ¿Estás seguro de que deseas eliminar la categoría{" "}
-              <strong>{categoryToDelete?.name || categoryToDelete?.nombre}</strong>?
+              <strong>
+                {categoryToDelete?.name || categoryToDelete?.nombre}
+              </strong>
+              ?
             </p>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
-              <button onClick={closeDeleteModal} style={{ padding: "8px 15px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "10px",
+                marginTop: "20px",
+              }}
+            >
+              <button
+                onClick={closeDeleteModal}
+                style={{ padding: "8px 15px" }}
+              >
                 Cancelar
               </button>
               <button
                 onClick={confirmDelete}
-                style={{ padding: "8px 15px", backgroundColor: "#ff4d4d", color: "white", border: "none" }}
+                style={{
+                  padding: "8px 15px",
+                  backgroundColor: "#ff4d4d",
+                  color: "white",
+                  border: "none",
+                }}
               >
                 Eliminar
               </button>
