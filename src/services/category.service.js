@@ -9,7 +9,6 @@ export const getAll = async () => {
 
     return await handleResponse(response);
   } catch (error) {
-    console.error("Error fetching categories:", error);
     throw error;
   }
 };
@@ -24,7 +23,46 @@ export const create = async (categoryData) => {
 
     return await handleResponse(response);
   } catch (error) {
-    console.error("Error creating category:", error);
+    throw error;
+  }
+};
+
+export const update = async (id, categoryData) => {
+  try {
+    const response = await fetch(`${API_URL}/categories/${id}`, {
+      method: "PUT",
+      headers: DEFAULT_HEADERS,
+      body: JSON.stringify(categoryData),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const remove = async (id) => {
+  try {
+    const response = await fetch(`${API_URL}/categories/${id}`, {
+      method: "DELETE",
+      headers: DEFAULT_HEADERS,
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getById = async (id) => {
+  try {
+    const response = await fetch(`${API_URL}/categories/${id}`, {
+      method: "GET",
+      headers: DEFAULT_HEADERS,
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
     throw error;
   }
 };
