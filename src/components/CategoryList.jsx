@@ -6,6 +6,7 @@ export const CategoryList = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
 
   const fetchCategories = async () => {
     try {
@@ -23,11 +24,23 @@ export const CategoryList = () => {
     fetchCategories();
   }, []);
 
+  const handleEditClick = (category) => {
+    setEditingCategory(category);
+  };
+
+  const clearSelection = () => {
+    setEditingCategory(null);
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h2>Gestión de Categorías</h2>
 
-      <CategoryForm onCategoryAdded={fetchCategories} />
+      <CategoryForm
+        onCategorySaved={fetchCategories}
+        editingCategory={editingCategory}
+        clearSelection={clearSelection}
+      />
 
       {loading && <p>Cargando categorías...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -42,6 +55,7 @@ export const CategoryList = () => {
             <tr>
               <th>ID</th>
               <th>Nombre</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -50,11 +64,19 @@ export const CategoryList = () => {
                 <tr key={cat.id}>
                   <td>{cat.id}</td>
                   <td>{cat.name || cat.nombre}</td>
+                  <td>
+                    <button
+                      onClick={() => handleEditClick(cat)}
+                      style={{ padding: "5px 10px", cursor: "pointer" }}
+                    >
+                      Editar
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="2">No hay categorías disponibles.</td>
+                <td colSpan="3">No hay categorías disponibles.</td>
               </tr>
             )}
           </tbody>

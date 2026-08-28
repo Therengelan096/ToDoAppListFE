@@ -28,3 +28,15 @@ export const create = async (categoryData) => {
     throw error;
   }
 };
+ export const update = async (id, categoryData) => {
+  try {
+    const response = await fetch(`${API_URL}/categories/${id}`, {
+      method: "PUT",
+      headers: DEFAULT_HEADERS,
+      body: JSON.stringify(categoryData),
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
