@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navbar } from "./components/Navbar";
 import { CategoryList } from "./components/CategoryList";
 import { TagList } from "./components/TagList";
+import { TaskList } from "./components/TaskList";
 import "./App.css";
 
 function App() {
@@ -19,11 +20,7 @@ function App() {
       <Navbar currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
       <main className="main-container">
-        {currentTab === "tasks" && (
-          <div style={{ textAlign: "center", marginTop: "40px" }}>
-            <h2>Tasks</h2>
-          </div>
-        )}
+        {currentTab === "tasks" && <TaskList />}
         {currentTab === "categories" && <CategoryList />}
         {currentTab === "tags" && <TagList />}
       </main>
