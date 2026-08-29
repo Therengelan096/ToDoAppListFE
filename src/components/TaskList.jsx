@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAll, update } from "../services/tarea.service";
+import { getAll, update, remove } from "../services/tarea.service";
 import { TaskForm } from "./TaskForm";
 import { TaskDetail } from "./TaskDetail";
 
@@ -10,6 +10,8 @@ export const TaskList = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [viewingTask, setViewingTask] = useState(null);
+  const [deletingTask, setDeletingTask] = useState(null);
+  const [deletingLoading, setDeletingLoading] = useState(false);
 
   const fetchTasks = async () => {
     try {
@@ -53,13 +55,35 @@ export const TaskList = () => {
 
   const handleEditClick = (task) => {
     setViewingTask(null);
+    setDeletingTask(null);
     setEditingTask(task);
     setShowForm(true);
   };
 
   const handleViewClick = (task) => {
     setShowForm(false);
+    setDeletingTask(null);
     setViewingTask(task);
+  };
+
+  const handleDeleteClick = (task) => {
+    setShowForm(false);
+    setViewingTask(null);
+    setDeletingTask(task);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingTask) return;
+    try {
+      setDeletingLoading(true);
+      await remove(deletingTask.id);
+      setTasks(tasks.filter((t) => t.id !== deletingTask.id));
+      setDeletingTask(null);
+    } catch (err) {
+      alert("Error al eliminar la tarea");
+    } finally {
+      setDeletingLoading(false);
+    }
   };
 
   const handleCloseForm = () => {
@@ -85,6 +109,7 @@ export const TaskList = () => {
             } else {
               setEditingTask(null);
               setViewingTask(null);
+              setDeletingTask(null);
               setShowForm(true);
             }
           }}
@@ -108,8 +133,86 @@ export const TaskList = () => {
           onClose={handleCloseForm}
         />
       )}
+
       {viewingTask && (
         <TaskDetail task={viewingTask} onClose={() => setViewingTask(null)} />
+      )}
+
+      {deletingTask && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setDeletingTask(null)}
+        >
+          <div
+            style={{
+              backgroundColor: "#1e293b",
+              padding: "24px",
+              borderRadius: "12px",
+              maxWidth: "400px",
+              width: "90%",
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+              border: "1px solid #334155",
+              color: "#f8fafc",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ margin: "0 0 12px 0", color: "#ef4444" }}>
+              ¿Eliminar tarea?
+            </h3>
+            <p style={{ margin: "0 0 20px 0", color: "#cbd5e1" }}>
+              ¿Estás seguro de que deseas eliminar la tarea{" "}
+              <strong>"{deletingTask.title}"</strong>?
+            </p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "10px",
+              }}
+            >
+              <button
+                onClick={() => setDeletingTask(null)}
+                disabled={deletingLoading}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#64748b",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deletingLoading}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#ef4444",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                {deletingLoading ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {loading && <p style={{ textAlign: "center" }}>Cargando tareas...</p>}
@@ -236,6 +339,19 @@ export const TaskList = () => {
                         }}
                       >
                         Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(task)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#ef4444",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Eliminar
                       </button>
                     </td>
                   </tr>
