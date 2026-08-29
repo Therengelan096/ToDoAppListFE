@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAll, remove, getById } from "../services/tag.service";
+import { getAll, remove } from "../services/tag.service";
 import { TagForm } from "./TagForm";
 
 export const TagList = () => {
@@ -7,19 +7,15 @@ export const TagList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingTag, setEditingTag] = useState(null);
-
-  // Estados para ver detalle
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTag, setSelectedTag] = useState(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-
-  // Estados para eliminar
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [tagToDelete, setTagToDelete] = useState(null);
 
   const fetchTags = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getAll();
       setTags(data.tags || data);
     } catch (err) {
@@ -41,18 +37,9 @@ export const TagList = () => {
     setEditingTag(null);
   };
 
-  const handleViewClick = async (id) => {
-    try {
-      setLoadingDetail(true);
-      setShowDetailModal(true);
-      const data = await getById(id);
-      setSelectedTag(data.tag || data);
-    } catch (err) {
-      setError("No se pudo obtener el detalle de la etiqueta");
-      setShowDetailModal(false);
-    } finally {
-      setLoadingDetail(false);
-    }
+  const handleViewClick = (tag) => {
+    setSelectedTag(tag);
+    setShowDetailModal(true);
   };
 
   const closeDetailModal = () => {
@@ -96,8 +83,24 @@ export const TagList = () => {
       />
 
       {loading && <p style={{ textAlign: "center" }}>Cargando etiquetas...</p>}
+
       {error && (
-        <p style={{ color: "#ef4444", textAlign: "center" }}>{error}</p>
+        <div style={{ textAlign: "center", margin: "20px 0" }}>
+          <p style={{ color: "#ef4444", marginBottom: "12px" }}>{error}</p>
+          <button
+            onClick={fetchTags}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#3b82f6",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Reintentar
+          </button>
+        </div>
       )}
 
       {!loading && !error && (
@@ -125,7 +128,7 @@ export const TagList = () => {
                   <td>{tag.name || tag.nombre}</td>
                   <td>
                     <button
-                      onClick={() => handleViewClick(tag.id)}
+                      onClick={() => handleViewClick(tag)}
                       style={{
                         padding: "6px 12px",
                         marginRight: "8px",
@@ -179,14 +182,11 @@ export const TagList = () => {
         </table>
       )}
 
-      {/* Modal de Detalle */}
       {showDetailModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Detalle de la Etiqueta</h3>
-            {loadingDetail ? (
-              <p>Cargando detalle...</p>
-            ) : selectedTag ? (
+            {selectedTag ? (
               <div>
                 <p>
                   <strong>ID:</strong> {selectedTag.id}
@@ -218,7 +218,6 @@ export const TagList = () => {
         </div>
       )}
 
-      {/* Modal de Confirmación de Eliminación */}
       {showDeleteModal && (
         <div className="modal-overlay">
           <div className="modal-content">
