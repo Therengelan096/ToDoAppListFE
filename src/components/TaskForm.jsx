@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { create } from "../services/tarea.service";
+import { create, update } from "../services/tarea.service";
 import { getAll as getCategories } from "../services/category.service";
 import { getAll as getTags } from "../services/tag.service";
 
-export const TaskForm = ({ onTaskCreated, onClose }) => {
+export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [completed, setCompleted] = useState(false);
 
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
@@ -17,6 +18,23 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
   useEffect(() => {
     loadSelectData();
   }, []);
+
+  useEffect(() => {
+    if (editingTask) {
+      setTitle(editingTask.title || editingTask.titulo || "");
+      setDescription(editingTask.description || editingTask.descripcion || "");
+      
+      const catId = editingTask.category_id || editingTask.category?.id;
+      setCategoryId(catId ? String(catId) : "");
+
+      if (Array.isArray(editingTask.tags)) {
+        setSelectedTags(editingTask.tags.map((t) => (typeof t === "object" ? t.id : t)));
+      } else {
+        setSelectedTags([]);
+      }
+      setCompleted(Boolean(editingTask.is_completed));
+    }
+  }, [editingTask]);
 
   const loadSelectData = async () => {
     try {
@@ -45,25 +63,31 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
     }
 
     const payload = {
-      title,
-      description,
-      category_id: Number(categoryId),
-      tags: selectedTags,
-    };
+    title,
+    description,
+    category_id: Number(categoryId),
+    tags: selectedTags,
+    is_completed: completed,
+  };
 
     try {
       setLoading(true);
       setError(null);
-      await create(payload);
-      if (onTaskCreated) onTaskCreated();
+
+      if (editingTask) {
+        await update(editingTask.id, payload);
+      } else {
+        await create(payload);
+      }
+
+      if (onTaskSaved) onTaskSaved();
       if (onClose) onClose();
     } catch (err) {
       const titleError = err.errors?.title?.[0] || err.message;
-        
       if (titleError && titleError.includes("already been taken")) {
-        setError("El título ya está registrado. Por favor ingresa otro");
+        setError("El título ya está registrado. Por favor ingresa otro.");
       } else {
-        setError(err.message || "Error al crear la tarea");
+        setError(err.message || "Error al guardar la tarea");
       }
     } finally {
       setLoading(false);
@@ -84,7 +108,7 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
       }}
     >
       <h3 style={{ margin: 0, textAlign: "center", color: "#f8fafc" }}>
-        Nueva Tarea
+        {editingTask ? "Editar Tarea" : "Nueva Tarea"}
       </h3>
 
       {error && <p style={{ color: "#ef4444", margin: 0 }}>{error}</p>}
@@ -94,11 +118,7 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
         placeholder="Título de la tarea"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        style={{
-          padding: "8px",
-          borderRadius: "4px",
-          border: "1px solid #475569",
-        }}
+        style={{ padding: "8px", borderRadius: "4px", border: "1px solid #475569" }}
       />
 
       <textarea
@@ -106,17 +126,11 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows="3"
-        style={{
-          padding: "8px",
-          borderRadius: "4px",
-          border: "1px solid #475569",
-        }}
+        style={{ padding: "8px", borderRadius: "4px", border: "1px solid #475569" }}
       />
 
       <div>
-        <label
-          style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}
-        >
+        <label style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}>
           Categoría
         </label>
         <select
@@ -135,9 +149,7 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
       </div>
 
       <div>
-        <label
-          style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}
-        >
+        <label style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}>
           Etiquetas
         </label>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -165,6 +177,20 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
         </div>
       </div>
 
+      {editingTask && (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <input
+            type="checkbox"
+            id="completed"
+            checked={completed}
+            onChange={(e) => setCompleted(e.target.checked)}
+          />
+          <label htmlFor="completed" style={{ color: "#cbd5e1", cursor: "pointer" }}>
+            Marcar como completada
+          </label>
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
         {onClose && (
           <button
@@ -187,14 +213,14 @@ export const TaskForm = ({ onTaskCreated, onClose }) => {
           disabled={loading}
           style={{
             padding: "8px 16px",
-            backgroundColor: "#22c55e",
+            backgroundColor: editingTask ? "#3b82f6" : "#22c55e",
             color: "white",
             border: "none",
             borderRadius: "4px",
             cursor: "pointer",
           }}
         >
-          {loading ? "Guardando..." : "Crear Tarea"}
+          {loading ? "Guardando..." : editingTask ? "Actualizar Tarea" : "Crear Tarea"}
         </button>
       </div>
     </form>
