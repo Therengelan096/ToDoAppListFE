@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const Navbar = ({ currentTab, setCurrentTab }) => {
+export const Navbar = ({ currentTab, setCurrentTab, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -41,6 +41,21 @@ export const Navbar = ({ currentTab, setCurrentTab }) => {
           onClick={() => handleTabChange("tags")}
         >
           Tags
+        </button>
+        <button
+          onClick={onLogout}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#62e5ee",
+            color: "black",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            marginLeft: "10px",
+          }}
+        >
+          Cerrar Sesión
         </button>
       </div>
     </nav>
