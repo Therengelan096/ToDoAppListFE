@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAll, remove } from "../services/category.service";
 import { CategoryForm } from "./CategoryForm";
+import { ModalDetail } from "./ModalDetail";
 
 export const CategoryList = () => {
   const [categories, setCategories] = useState([]);
@@ -149,60 +150,11 @@ export const CategoryList = () => {
         </table>
       )}
 
-      {showDetailModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "5px",
-              maxWidth: "400px",
-              width: "100%",
-            }}
-          >
-            <h3>Detalle de la Categoría</h3>
-            {selectedCategory ? (
-              <div>
-                <p>
-                  <strong>ID:</strong> {selectedCategory.id}
-                </p>
-                <p>
-                  <strong>Nombre:</strong>{" "}
-                  {selectedCategory.name || selectedCategory.nombre}
-                </p>
-              </div>
-            ) : (
-              <p>No se encontró información.</p>
-            )}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginTop: "20px",
-              }}
-            >
-              <button
-                onClick={closeDetailModal}
-                style={{ padding: "8px 15px" }}
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ModalDetail
+        isOpen={showDetailModal}
+        onClose={closeDetailModal}
+        data={selectedCategory}
+      />
 
       {showDeleteModal && (
         <div
@@ -225,6 +177,7 @@ export const CategoryList = () => {
               borderRadius: "5px",
               maxWidth: "400px",
               width: "100%",
+              color: "#0f172a",
             }}
           >
             <h3>Confirmar eliminación</h3>
@@ -245,7 +198,7 @@ export const CategoryList = () => {
             >
               <button
                 onClick={closeDeleteModal}
-                style={{ padding: "8px 15px" }}
+                style={{ padding: "8px 15px", cursor: "pointer" }}
               >
                 Cancelar
               </button>
@@ -256,6 +209,7 @@ export const CategoryList = () => {
                   backgroundColor: "#ff4d4d",
                   color: "white",
                   border: "none",
+                  cursor: "pointer",
                 }}
               >
                 Eliminar
