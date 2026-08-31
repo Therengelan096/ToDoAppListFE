@@ -27,19 +27,22 @@ export const TaskList = () => {
   }, []);
 
   const handleToggleStatus = async (task) => {
-    const newStatus = !task.is_completed;
+    const currentStatus = Boolean(task.is_completed || task.completed);
+    const newStatus = !currentStatus;
     const payload = {
-      title: task.title,
-      description: task.description,
-      category_id: task.category_id,
+      title: task.title || task.titulo,
+      description: task.description || task.descripcion,
+      category_id: task.category_id || task.category?.id,
       is_completed: newStatus,
-      tags: task.tags?.map((t) => t.id) || [],
+      tags: task.tags?.map((t) => (typeof t === "object" ? t.id : t)) || [],
     };
 
     try {
       setTasks(
         tasks.map((t) =>
-          t.id === task.id ? { ...t, is_completed: newStatus } : t,
+          t.id === task.id
+            ? { ...t, is_completed: newStatus, completed: newStatus }
+            : t,
         ),
       );
       await update(task.id, payload);
@@ -57,6 +60,43 @@ export const TaskList = () => {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingTask(null);
+  };
+
+  const renderTags = (taskTags) => {
+    if (!Array.isArray(taskTags) || taskTags.length === 0) {
+      return <span style={{ color: "#94a3b8" }}>Sin etiquetas</span>;
+    }
+
+    const visibleTags = taskTags.slice(0, 3);
+    const hasMore = taskTags.length > 3;
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          gap: "4px",
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        {visibleTags.map((tag) => (
+          <span
+            key={tag.id || tag}
+            style={{
+              padding: "2px 6px",
+              backgroundColor: "#334155",
+              borderRadius: "4px",
+              fontSize: "12px",
+            }}
+          >
+            {tag.name || tag.nombre || tag}
+          </span>
+        ))}
+        {hasMore && (
+          <span style={{ color: "#94a3b8", fontSize: "12px" }}>...</span>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -136,6 +176,7 @@ export const TaskList = () => {
               <th>ID</th>
               <th>Título</th>
               <th>Categoría</th>
+              <th>Etiquetas</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -143,42 +184,46 @@ export const TaskList = () => {
           <tbody>
             {Array.isArray(tasks) && tasks.length > 0 ? (
               tasks.map((task) => {
-                const isDone = task.is_completed;
+                const isDone = Boolean(task.is_completed || task.completed);
                 return (
                   <tr key={task.id} style={{ textAlign: "center" }}>
                     <td>{task.id}</td>
-                    <td
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "10px",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isDone}
-                        onChange={() => handleToggleStatus(task)}
+                    <td>
+                      <div
                         style={{
-                          cursor: "pointer",
-                          width: "18px",
-                          height: "18px",
-                        }}
-                      />
-                      <span
-                        style={{
-                          textDecoration: isDone ? "line-through" : "none",
-                          color: isDone ? "#94a3b8" : "inherit",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "10px",
                         }}
                       >
-                        {task.title}
-                      </span>
+                        <input
+                          type="checkbox"
+                          checked={isDone}
+                          onChange={() => handleToggleStatus(task)}
+                          style={{
+                            cursor: "pointer",
+                            width: "18px",
+                            height: "18px",
+                          }}
+                        />
+                        <span
+                          style={{
+                            textDecoration: isDone ? "line-through" : "none",
+                            color: isDone ? "#94a3b8" : "inherit",
+                          }}
+                        >
+                          {task.title || task.titulo}
+                        </span>
+                      </div>
                     </td>
                     <td>
                       {task.category?.name ||
+                        task.category?.nombre ||
                         task.category_id ||
                         "Sin categoría"}
                     </td>
+                    <td>{renderTags(task.tags)}</td>
                     <td>
                       <span
                         style={{
@@ -212,7 +257,7 @@ export const TaskList = () => {
               })
             ) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
+                <td colSpan="6" style={{ textAlign: "center" }}>
                   No hay tareas disponibles.
                 </td>
               </tr>

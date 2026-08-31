@@ -13,6 +13,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [error, setError] = useState(null);
+  const [errorTask, setErrorTask] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
       } else {
         setSelectedTags([]);
       }
-      setCompleted(Boolean(editingTask.is_completed));
+      setCompleted(Boolean(editingTask.is_completed || editingTask.completed));
     }
   }, [editingTask]);
 
@@ -46,6 +47,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
       setTags(tagData.tags || tagData);
     } catch (err) {
       console.error("Error al cargar categorías o etiquetas:", err);
+      setErrorTask("Error al cargar categorías o etiquetas");
     }
   };
 
@@ -113,6 +115,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
         {editingTask ? "Editar Tarea" : "Nueva Tarea"}
       </h3>
 
+      {errorTask && <p style={{ color: "#ef4444", margin: 0 }}>{errorTask}</p>}
       {error && <p style={{ color: "#ef4444", margin: 0 }}>{error}</p>}
 
       <input
