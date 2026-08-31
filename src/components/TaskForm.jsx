@@ -13,6 +13,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [error, setError] = useState(null);
+  const [errorTask, setErrorTask] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -23,16 +24,18 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
     if (editingTask) {
       setTitle(editingTask.title || editingTask.titulo || "");
       setDescription(editingTask.description || editingTask.descripcion || "");
-      
+
       const catId = editingTask.category_id || editingTask.category?.id;
       setCategoryId(catId ? String(catId) : "");
 
       if (Array.isArray(editingTask.tags)) {
-        setSelectedTags(editingTask.tags.map((t) => (typeof t === "object" ? t.id : t)));
+        setSelectedTags(
+          editingTask.tags.map((t) => (typeof t === "object" ? t.id : t)),
+        );
       } else {
         setSelectedTags([]);
       }
-      setCompleted(Boolean(editingTask.is_completed));
+      setCompleted(Boolean(editingTask.is_completed || editingTask.completed));
     }
   }, [editingTask]);
 
@@ -44,6 +47,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
       setTags(tagData.tags || tagData);
     } catch (err) {
       console.error("Error al cargar categorías o etiquetas:", err);
+      setErrorTask("Error al cargar categorías o etiquetas");
     }
   };
 
@@ -63,12 +67,12 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
     }
 
     const payload = {
-    title,
-    description,
-    category_id: Number(categoryId),
-    tags: selectedTags,
-    is_completed: completed,
-  };
+      title,
+      description,
+      category_id: Number(categoryId),
+      tags: selectedTags,
+      is_completed: completed,
+    };
 
     try {
       setLoading(true);
@@ -111,6 +115,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
         {editingTask ? "Editar Tarea" : "Nueva Tarea"}
       </h3>
 
+      {errorTask && <p style={{ color: "#ef4444", margin: 0 }}>{errorTask}</p>}
       {error && <p style={{ color: "#ef4444", margin: 0 }}>{error}</p>}
 
       <input
@@ -118,7 +123,11 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
         placeholder="Título de la tarea"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        style={{ padding: "8px", borderRadius: "4px", border: "1px solid #475569" }}
+        style={{
+          padding: "8px",
+          borderRadius: "4px",
+          border: "1px solid #475569",
+        }}
       />
 
       <textarea
@@ -126,11 +135,17 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows="3"
-        style={{ padding: "8px", borderRadius: "4px", border: "1px solid #475569" }}
+        style={{
+          padding: "8px",
+          borderRadius: "4px",
+          border: "1px solid #475569",
+        }}
       />
 
       <div>
-        <label style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}>
+        <label
+          style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}
+        >
           Categoría
         </label>
         <select
@@ -149,7 +164,9 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
       </div>
 
       <div>
-        <label style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}>
+        <label
+          style={{ display: "block", marginBottom: "4px", color: "#cbd5e1" }}
+        >
           Etiquetas
         </label>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -185,7 +202,10 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
             checked={completed}
             onChange={(e) => setCompleted(e.target.checked)}
           />
-          <label htmlFor="completed" style={{ color: "#cbd5e1", cursor: "pointer" }}>
+          <label
+            htmlFor="completed"
+            style={{ color: "#cbd5e1", cursor: "pointer" }}
+          >
             Marcar como completada
           </label>
         </div>
@@ -220,7 +240,11 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
             cursor: "pointer",
           }}
         >
-          {loading ? "Guardando..." : editingTask ? "Actualizar Tarea" : "Crear Tarea"}
+          {loading
+            ? "Guardando..."
+            : editingTask
+              ? "Actualizar Tarea"
+              : "Crear Tarea"}
         </button>
       </div>
     </form>
