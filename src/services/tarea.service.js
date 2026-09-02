@@ -14,8 +14,32 @@ export const getAll = async () => {
   }
 };
 
-export const create = async (taskData) => {};
+export const create = async (taskData) => {
+  try {
+    const response = await fetch(`${API_URL}/tasks`, {
+      method: "POST",
+      headers: DEFAULT_HEADERS,
+      body: JSON.stringify(taskData),
+    });
 
-export const update = async (id, taskData) => {};
+    const data = await handleResponse(response);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const update = async (id, taskData) => {
+  try {
+    const response = await fetch(`${API_URL}/tasks/${id}`, {
+      method: "PUT",
+      headers: DEFAULT_HEADERS,
+      body: JSON.stringify(taskData),
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const remove = async (id) => {};
