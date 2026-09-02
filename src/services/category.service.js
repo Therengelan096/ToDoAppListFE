@@ -8,7 +8,6 @@ export const getAll = async () => {
     });
     return await handleResponse(response);
   } catch (error) {
-    console.error("Error fetching categories:", error);
     throw error;
   }
 };
@@ -22,7 +21,6 @@ export const create = async (categoryData) => {
     });
     return await handleResponse(response);
   } catch (error) {
-    console.error("Error creating category:", error);
     throw error;
   }
 };
