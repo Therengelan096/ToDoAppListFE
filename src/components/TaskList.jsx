@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAll, update } from "../services/tarea.service";
 import { TaskForm } from "./TaskForm";
+import { TaskDetail } from "./TaskDetail";
 
 export const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -8,6 +9,7 @@ export const TaskList = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [viewingTask, setViewingTask] = useState(null);
 
   const fetchTasks = async () => {
     try {
@@ -53,8 +55,14 @@ export const TaskList = () => {
   };
 
   const handleEditClick = (task) => {
+    setViewingTask(null);
     setEditingTask(task);
     setShowForm(true);
+  };
+
+  const handleViewClick = (task) => {
+    setShowForm(false);
+    setViewingTask(task);
   };
 
   const handleCloseForm = () => {
@@ -116,6 +124,7 @@ export const TaskList = () => {
               handleCloseForm();
             } else {
               setEditingTask(null);
+              setViewingTask(null);
               setShowForm(true);
             }
           }}
@@ -138,6 +147,9 @@ export const TaskList = () => {
           onTaskSaved={fetchTasks}
           onClose={handleCloseForm}
         />
+      )}
+      {viewingTask && (
+        <TaskDetail task={viewingTask} onClose={() => setViewingTask(null)} />
       )}
 
       {loading && <p style={{ textAlign: "center" }}>Cargando tareas...</p>}
@@ -237,7 +249,26 @@ export const TaskList = () => {
                         {isDone ? "Completada" : "Pendiente"}
                       </span>
                     </td>
-                    <td>
+                    <td
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <button
+                        onClick={() => handleViewClick(task)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#0284c7",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Ver
+                      </button>
                       <button
                         onClick={() => handleEditClick(task)}
                         style={{
