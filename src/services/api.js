@@ -10,7 +10,12 @@ export const getAuthHeaders = () => {
   };
 };
 
-export const handleResponse = async (response) => {
+export const handleResponse = async (response, onUnauthorized) => {
+  if (response.status === 401 || response.status === 403) {
+    localStorage.removeItem("token");
+    if (onUnauthorized) onUnauthorized();
+    throw new Error("Sesión expirada o no autorizada");
+  }
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || `Error HTTP: ${response.status}`);

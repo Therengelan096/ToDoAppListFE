@@ -10,11 +10,31 @@ function App() {
   const [currentTab, setCurrentTab] = useState("tasks");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.clear();
+    setIsAuthenticated(false);
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, "", window.location.href);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    if (!token) {
+      handleLogout();
+    } else {
       setIsAuthenticated(true);
     }
+    const handlePopState = () => {
+      const activeToken = localStorage.getItem("token");
+      if (!activeToken) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   if (!isAuthenticated) {
@@ -30,12 +50,18 @@ function App() {
         color: "#f8fafc",
       }}
     >
-      <Navbar currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      <Navbar
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+        onLogout={handleLogout}
+      />
 
       <main className="main-container">
-        {currentTab === "tasks" && <TaskList />}
-        {currentTab === "categories" && <CategoryList />}
-        {currentTab === "tags" && <TagList />}
+        {currentTab === "tasks" && <TaskList onUnauthorized={handleLogout} />}
+        {currentTab === "categories" && (
+          <CategoryList onUnauthorized={handleLogout} />
+        )}
+        {currentTab === "tags" && <TagList onUnauthorized={handleLogout} />}
       </main>
     </div>
   );
