@@ -1,10 +1,10 @@
-import { API_URL, DEFAULT_HEADERS, handleResponse } from "./api";
+import { API_URL, getAuthHeaders, handleResponse } from "./api";
 
 export const getAll = async () => {
   try {
     const response = await fetch(`${API_URL}/tags`, {
       method: "GET",
-      headers: DEFAULT_HEADERS,
+      headers: getAuthHeaders(),
     });
     return await handleResponse(response);
   } catch (error) {
@@ -16,7 +16,7 @@ export const create = async (tagData) => {
   try {
     const response = await fetch(`${API_URL}/tags`, {
       method: "POST",
-      headers: DEFAULT_HEADERS,
+      headers: getAuthHeaders(),
       body: JSON.stringify(tagData),
     });
     return await handleResponse(response);
@@ -29,7 +29,7 @@ export const update = async (id, tagData) => {
   try {
     const response = await fetch(`${API_URL}/tags/${id}`, {
       method: "PUT",
-      headers: DEFAULT_HEADERS,
+      headers: getAuthHeaders(),
       body: JSON.stringify(tagData),
     });
     return await handleResponse(response);
@@ -42,7 +42,7 @@ export const remove = async (id) => {
   try {
     const response = await fetch(`${API_URL}/tags/${id}`, {
       method: "DELETE",
-      headers: DEFAULT_HEADERS,
+      headers: getAuthHeaders(),
     });
     return await handleResponse(response);
   } catch (error) {
