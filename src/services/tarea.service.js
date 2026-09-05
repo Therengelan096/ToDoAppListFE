@@ -42,4 +42,14 @@ export const update = async (id, taskData) => {
   }
 };
 
-export const remove = async (id) => {};
+export const remove = async (id) => {
+  try {
+    const response = await fetch(`${API_URL}/tasks/${id}`, {
+      method: "DELETE",
+      headers: DEFAULT_HEADERS,
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
