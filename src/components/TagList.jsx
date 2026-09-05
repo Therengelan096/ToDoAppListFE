@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAll, remove } from "../services/tag.service";
 import { TagForm } from "./TagForm";
+import { Pagination } from "./Pagination";
 
 export const TagList = () => {
   const [tags, setTags] = useState([]);
@@ -11,6 +12,8 @@ export const TagList = () => {
   const [selectedTag, setSelectedTag] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [tagToDelete, setTagToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const fetchTags = async () => {
     try {
@@ -28,6 +31,13 @@ export const TagList = () => {
   useEffect(() => {
     fetchTags();
   }, []);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = Array.isArray(tags)
+    ? tags.slice(indexOfFirstItem, indexOfLastItem)
+    : [];
+  const totalPages = Math.ceil((tags.length || 0) / itemsPerPage);
 
   const handleEditClick = (tag) => {
     setEditingTag(tag);
@@ -104,82 +114,89 @@ export const TagList = () => {
       )}
 
       {!loading && !error && (
-        <table
-          border="1"
-          cellPadding="10"
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            borderColor: "#334155",
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: "#1e293b" }}>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(tags) && tags.length > 0 ? (
-              tags.map((tag) => (
-                <tr key={tag.id} style={{ textAlign: "center" }}>
-                  <td>{tag.id}</td>
-                  <td>{tag.name || tag.nombre}</td>
-                  <td>
-                    <button
-                      onClick={() => handleViewClick(tag)}
-                      style={{
-                        padding: "6px 12px",
-                        marginRight: "8px",
-                        cursor: "pointer",
-                        backgroundColor: "#0284c7",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      Ver
-                    </button>
-                    <button
-                      onClick={() => handleEditClick(tag)}
-                      style={{
-                        padding: "6px 12px",
-                        marginRight: "8px",
-                        cursor: "pointer",
-                        backgroundColor: "#3b82f6",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(tag)}
-                      style={{
-                        padding: "6px 12px",
-                        backgroundColor: "#ef4444",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Eliminar
-                    </button>
+        <>
+          <table
+            border="1"
+            cellPadding="10"
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              borderColor: "#334155",
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: "#1e293b" }}>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentItems.length > 0 ? (
+                currentItems.map((tag) => (
+                  <tr key={tag.id} style={{ textAlign: "center" }}>
+                    <td>{tag.id}</td>
+                    <td>{tag.name || tag.nombre}</td>
+                    <td>
+                      <button
+                        onClick={() => handleViewClick(tag)}
+                        style={{
+                          padding: "6px 12px",
+                          marginRight: "8px",
+                          cursor: "pointer",
+                          backgroundColor: "#0284c7",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        Ver
+                      </button>
+                      <button
+                        onClick={() => handleEditClick(tag)}
+                        style={{
+                          padding: "6px 12px",
+                          marginRight: "8px",
+                          cursor: "pointer",
+                          backgroundColor: "#3b82f6",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(tag)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#ef4444",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" style={{ textAlign: "center" }}>
+                    No hay etiquetas disponibles.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" style={{ textAlign: "center" }}>
-                  No hay etiquetas disponibles.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
       )}
 
       {showDetailModal && (

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAll, update, remove } from "../services/tarea.service";
 import { TaskForm } from "./TaskForm";
 import { TaskDetail } from "./TaskDetail";
+import { Pagination } from "./Pagination";
 
 export const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -12,6 +13,8 @@ export const TaskList = () => {
   const [viewingTask, setViewingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
   const [deletingLoading, setDeletingLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const fetchTasks = async () => {
     try {
@@ -29,6 +32,13 @@ export const TaskList = () => {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTasks = Array.isArray(tasks)
+    ? tasks.slice(indexOfFirstItem, indexOfLastItem)
+    : [];
+  const totalPages = Math.ceil((tasks.length || 0) / itemsPerPage);
 
   const handleToggleStatus = async (task) => {
     const currentStatus = Boolean(task.is_completed || task.completed);
@@ -276,34 +286,33 @@ export const TaskList = () => {
       )}
 
       {!loading && !error && (
-        <table
-          border="1"
-          cellPadding="10"
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            borderColor: "#334155",
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: "#1e293b" }}>
-              <th>ID</th>
-              <th>Título</th>
-              <th>Categoría</th>
-              <th>Etiquetas</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(tasks) && tasks.length > 0 ? (
-              tasks.map((task) => {
-                const isDone = Boolean(task.is_completed || task.completed);
-                return (
-                  <tr key={task.id} style={{ textAlign: "center" }}>
-                    <td>{task.id}</td>
-                    <td>
-                      <div
+        <>
+          <table
+            border="1"
+            cellPadding="10"
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              borderColor: "#334155",
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: "#1e293b" }}>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(currentTasks) && currentTasks.length > 0 ? (
+                currentTasks.map((task) => {
+                  const isDone = task.is_completed;
+                  return (
+                    <tr key={task.id} style={{ textAlign: "center" }}>
+                      <td>{task.id}</td>
+                      <td
                         style={{
                           display: "flex",
                           alignItems: "center",
@@ -327,89 +336,92 @@ export const TaskList = () => {
                             color: isDone ? "#94a3b8" : "inherit",
                           }}
                         >
-                          {task.title || task.titulo}
+                          {task.title}
                         </span>
-                      </div>
-                    </td>
-                    <td>
-                      {task.category?.name ||
-                        task.category?.nombre ||
-                        task.category_id ||
-                        "Sin categoría"}
-                    </td>
-                    <td>{renderTags(task.tags)}</td>
-                    <td>
-                      <span
+                      </td>
+                      <td>
+                        {task.category?.name ||
+                          task.category_id ||
+                          "Sin categoría"}
+                      </td>
+                      <td>
+                        <span
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            backgroundColor: isDone ? "#166534" : "#854d0e",
+                            color: "white",
+                            fontSize: "12px",
+                          }}
+                        >
+                          {isDone ? "Completada" : "Pendiente"}
+                        </span>
+                      </td>
+                      <td
                         style={{
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          backgroundColor: isDone ? "#166534" : "#854d0e",
-                          color: "white",
-                          fontSize: "12px",
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: "8px",
                         }}
                       >
-                        {isDone ? "Completada" : "Pendiente"}
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <button
-                        onClick={() => handleViewClick(task)}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#0284c7",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Ver
-                      </button>
-                      <button
-                        onClick={() => handleEditClick(task)}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#3b82f6",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(task)}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#ef4444",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="6" style={{ textAlign: "center" }}>
-                  No hay tareas disponibles.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                        <button
+                          onClick={() => handleViewClick(task)}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: "#0284c7",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Ver
+                        </button>
+                        <button
+                          onClick={() => handleEditClick(task)}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: "#3b82f6",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(task)}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: "#ef4444",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center" }}>
+                    No hay tareas disponibles.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
       )}
     </div>
   );

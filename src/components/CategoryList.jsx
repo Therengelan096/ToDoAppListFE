@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAll, remove } from "../services/category.service";
 import { CategoryForm } from "./CategoryForm";
 import { ModalDetail } from "./ModalDetail";
+import { Pagination } from "./Pagination";
 
 export const CategoryList = () => {
   const [categories, setCategories] = useState([]);
@@ -12,6 +13,8 @@ export const CategoryList = () => {
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const fetchCategories = async () => {
     try {
@@ -28,6 +31,13 @@ export const CategoryList = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCategories = Array.isArray(categories)
+    ? categories.slice(indexOfFirstItem, indexOfLastItem)
+    : [];
+  const totalPages = Math.ceil((categories.length || 0) / itemsPerPage);
 
   const handleEditClick = (category) => {
     setEditingCategory(category);
@@ -84,70 +94,77 @@ export const CategoryList = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {!loading && !error && (
-        <table
-          border="1"
-          cellPadding="10"
-          style={{ width: "100%", borderCollapse: "collapse" }}
-        >
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(categories) && categories.length > 0 ? (
-              categories.map((cat) => (
-                <tr key={cat.id}>
-                  <td>{cat.id}</td>
-                  <td>{cat.name || cat.nombre}</td>
-                  <td>
-                    <button
-                      onClick={() => handleViewClick(cat)}
-                      style={{
-                        padding: "5px 10px",
-                        marginRight: "5px",
-                        cursor: "pointer",
-                        backgroundColor: "#17a2b8",
-                        color: "white",
-                        border: "none",
-                      }}
-                    >
-                      Ver
-                    </button>
-                    <button
-                      onClick={() => handleEditClick(cat)}
-                      style={{
-                        padding: "5px 10px",
-                        marginRight: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(cat)}
-                      style={{
-                        padding: "5px 10px",
-                        backgroundColor: "#ff4d4d",
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
+        <>
+          <table
+            border="1"
+            cellPadding="10"
+            style={{ width: "100%", borderCollapse: "collapse" }}
+          >
+            <thead>
               <tr>
-                <td colSpan="3">No hay categorías disponibles.</td>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Acciones</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentCategories.length > 0 ? (
+                currentCategories.map((cat) => (
+                  <tr key={cat.id}>
+                    <td>{cat.id}</td>
+                    <td>{cat.name || cat.nombre}</td>
+                    <td>
+                      <button
+                        onClick={() => handleViewClick(cat)}
+                        style={{
+                          padding: "5px 10px",
+                          marginRight: "5px",
+                          cursor: "pointer",
+                          backgroundColor: "#17a2b8",
+                          color: "white",
+                          border: "none",
+                        }}
+                      >
+                        Ver
+                      </button>
+                      <button
+                        onClick={() => handleEditClick(cat)}
+                        style={{
+                          padding: "5px 10px",
+                          marginRight: "5px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(cat)}
+                        style={{
+                          padding: "5px 10px",
+                          backgroundColor: "#ff4d4d",
+                          color: "white",
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">No hay categorías disponibles.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
       )}
 
       <ModalDetail
