@@ -173,7 +173,6 @@ export const TaskList = () => {
           onClose={handleCloseForm}
         />
       )}
-
       {viewingTask && (
         <TaskDetail task={viewingTask} onClose={() => setViewingTask(null)} />
       )}
