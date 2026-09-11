@@ -35,7 +35,7 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
       } else {
         setSelectedTags([]);
       }
-      setCompleted(Boolean(editingTask.is_completed || editingTask.completed));
+      setCompleted(editingTask.status === "completed");
     }
   }, [editingTask]);
 
@@ -67,11 +67,11 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
     }
 
     const payload = {
-      title,
-      description,
-      category_id: Number(categoryId),
+      title: title.trim(),
+      description: description.trim(),
+      categoryId: categoryId,
+      status: completed ? "completed" : "pending",
       tags: selectedTags,
-      is_completed: completed,
     };
 
     try {
@@ -150,7 +150,10 @@ export const TaskForm = ({ onTaskSaved, onClose, editingTask = null }) => {
         </label>
         <select
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
+          onChange={(e) => {
+            setCategoryId(e.target.value);
+            console.log(categoryId);
+          }}
           style={{ width: "100%", padding: "8px", borderRadius: "4px" }}
         >
           <option value="">-- Seleccionar Categoría --</option>

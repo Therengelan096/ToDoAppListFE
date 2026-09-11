@@ -98,10 +98,14 @@ export const CategoryList = () => {
           <table
             border="1"
             cellPadding="10"
-            style={{ width: "100%", borderCollapse: "collapse" }}
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              borderColor: "#334155",
+            }}
           >
             <thead>
-              <tr>
+            <tr style={{ backgroundColor: "#1e293b", textAlign: "center" }}>
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Acciones</th>
@@ -110,19 +114,20 @@ export const CategoryList = () => {
             <tbody>
               {currentCategories.length > 0 ? (
                 currentCategories.map((cat) => (
-                  <tr key={cat.id}>
+                  <tr key={cat.id} style={{ textAlign: "center" }}>
                     <td>{cat.id}</td>
                     <td>{cat.name || cat.nombre}</td>
                     <td>
                       <button
                         onClick={() => handleViewClick(cat)}
                         style={{
-                          padding: "5px 10px",
-                          marginRight: "5px",
+                          padding: "6px 12px",
+                          marginRight: "8px",
                           cursor: "pointer",
-                          backgroundColor: "#17a2b8",
+                          backgroundColor: "#0284c7",
                           color: "white",
                           border: "none",
+                          borderRadius: "4px",
                         }}
                       >
                         Ver
@@ -130,9 +135,13 @@ export const CategoryList = () => {
                       <button
                         onClick={() => handleEditClick(cat)}
                         style={{
-                          padding: "5px 10px",
-                          marginRight: "5px",
+                          padding: "6px 12px",
+                          marginRight: "8px",
                           cursor: "pointer",
+                          backgroundColor: "#3b82f6",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
                         }}
                       >
                         Editar
@@ -140,11 +149,12 @@ export const CategoryList = () => {
                       <button
                         onClick={() => openDeleteModal(cat)}
                         style={{
-                          padding: "5px 10px",
-                          backgroundColor: "#ff4d4d",
+                          padding: "6px 12px",
+                          cursor: "pointer",
+                          backgroundColor: "#ef4444",
                           color: "white",
                           border: "none",
-                          cursor: "pointer",
+                          borderRadius: "4px",
                         }}
                       >
                         Eliminar

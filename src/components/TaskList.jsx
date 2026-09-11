@@ -41,21 +41,28 @@ export const TaskList = () => {
   const totalPages = Math.ceil((tasks.length || 0) / itemsPerPage);
 
   const handleToggleStatus = async (task) => {
-    const currentStatus = Boolean(task.is_completed || task.completed);
+    const currentStatus = task.status === "completed";
     const newStatus = !currentStatus;
+    
     const payload = {
-      title: task.title || task.titulo,
-      description: task.description || task.descripcion,
-      category_id: task.category_id || task.category?.id,
-      is_completed: newStatus,
-      tags: task.tags?.map((t) => (typeof t === "object" ? t.id : t)) || [],
+      title: task.title,
+      description: task.description,
+      categoryId: task.category?.id || task.categoryId,
+      status: newStatus ? "completed" : "pending",
+      tags:
+        task.tags?.map((tag) =>
+          typeof tag === "object" ? tag.id : tag
+        ) || [],
     };
 
     try {
       setTasks(
         tasks.map((t) =>
           t.id === task.id
-            ? { ...t, is_completed: newStatus, completed: newStatus }
+            ? {
+              ...t,
+              status: newStatus ? "completed" : "pending",
+            }
             : t,
         ),
       );
@@ -105,9 +112,13 @@ export const TaskList = () => {
   };
 
   const renderTags = (taskTags) => {
-    if (!Array.isArray(taskTags) || taskTags.length === 0) {
-      return <span style={{ color: "#94a3b8" }}>Sin etiquetas</span>;
-    }
+  if (!Array.isArray(taskTags) || taskTags.length === 0) {
+    return (
+      <span style={{ color: "#94a3b8", fontSize: "13px" }}>
+        Sin etiquetas
+      </span>
+    );
+  }
 
     const visibleTags = taskTags.slice(0, 3);
     const hasMore = taskTags.length > 3;
@@ -301,6 +312,7 @@ export const TaskList = () => {
                 <th>ID</th>
                 <th>Título</th>
                 <th>Categoría</th>
+                <th>Etiquetas</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -308,42 +320,50 @@ export const TaskList = () => {
             <tbody>
               {Array.isArray(currentTasks) && currentTasks.length > 0 ? (
                 currentTasks.map((task) => {
-                  const isDone = task.is_completed;
+                  const isDone = task.status === "completed";
                   return (
                     <tr key={task.id} style={{ textAlign: "center" }}>
                       <td>{task.id}</td>
-                      <td
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "10px",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isDone}
-                          onChange={() => handleToggleStatus(task)}
+                      <td>
+                        <div
                           style={{
-                            cursor: "pointer",
-                            width: "18px",
-                            height: "18px",
-                          }}
-                        />
-                        <span
-                          style={{
-                            textDecoration: isDone ? "line-through" : "none",
-                            color: isDone ? "#94a3b8" : "inherit",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "10px",
                           }}
                         >
-                          {task.title}
-                        </span>
+                          <input
+                            type="checkbox"
+                            checked={isDone}
+                            onChange={() => handleToggleStatus(task)}
+                            style={{
+                              cursor: "pointer",
+                              width: "18px",
+                              height: "18px",
+                            }}
+                          />
+
+                          <span
+                            style={{
+                              textDecoration: isDone ? "line-through" : "none",
+                              color: isDone ? "#94a3b8" : "inherit",
+                            }}
+                          >
+                            {task.title}
+                          </span>
+                        </div>
                       </td>
                       <td>
                         {task.category?.name ||
                           task.category_id ||
                           "Sin categoría"}
                       </td>
+
+                      <td style={{ minWidth: "190px" }}>
+                        {renderTags(task.tags)}
+                      </td>
+
                       <td>
                         <span
                           style={{
@@ -357,59 +377,64 @@ export const TaskList = () => {
                           {isDone ? "Completada" : "Pendiente"}
                         </span>
                       </td>
-                      <td
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <button
-                          onClick={() => handleViewClick(task)}
+
+                      <td>
+                        <div
                           style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#0284c7",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: "8px",
                           }}
                         >
-                          Ver
-                        </button>
-                        <button
-                          onClick={() => handleEditClick(task)}
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#3b82f6",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(task)}
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#ef4444",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Eliminar
-                        </button>
+                          <button
+                            onClick={() => handleViewClick(task)}
+                            style={{
+                              padding: "6px 12px",
+                              backgroundColor: "#0284c7",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Ver
+                          </button>
+
+                          <button
+                            onClick={() => handleEditClick(task)}
+                            style={{
+                              padding: "6px 12px",
+                              backgroundColor: "#3b82f6",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Editar
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteClick(task)}
+                            style={{
+                              padding: "6px 12px",
+                              backgroundColor: "#ef4444",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: "center" }}>
+                  <td colSpan="6" style={{ textAlign: "center" }}>
                     No hay tareas disponibles.
                   </td>
                 </tr>

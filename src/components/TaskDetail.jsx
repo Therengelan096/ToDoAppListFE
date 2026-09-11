@@ -2,7 +2,7 @@ import "./styles/TaskDetailModal.css";
 
 export const TaskDetail = ({ task, onClose }) => {
   if (!task) return null;
-  const isDone = Boolean(task.is_completed);
+  const isDone = Boolean(task.status === "completed");
 
   return (
     <div className="modal-overlay" onClick={onClose}>

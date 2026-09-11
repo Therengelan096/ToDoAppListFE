@@ -14,6 +14,7 @@ export const Login = ({ onLoginSuccess }) => {
 
     try {
       const response = await login(email, password);
+      
       if (response.success && response.data?.token) {
         localStorage.setItem("token", response.data.token);
         if (onLoginSuccess) {
